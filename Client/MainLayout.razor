@@ -1,0 +1,24 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<main>
+    @Body
+</main>
+
+@code {
+    [CascadingParameter]
+    protected Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = (await AuthenticationState).User;
+        if ( !user?.Identity?.IsAuthenticated ?? true )
+        {
+            NavigationManager.NavigateTo( $"/login?returnUrl={Uri.EscapeDataString( NavigationManager.Uri )}" );
+        }
+    }
+}

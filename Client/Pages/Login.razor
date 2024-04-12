@@ -1,0 +1,64 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.Authorization
+@using System.Security.Claims
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISnackbar Snackbar
+
+<MudContainer Class="mt-8">
+    <MudPaper Class="mx-auto pa-8 mt-8" Elevation="3" MaxWidth="MaxWidth.Medium">
+        <h2>Login</h2>
+        <MudTextField Label="Username" @bind-Value="Username" />
+        <MudTextField Label="Password" Type="InputType.Password" @bind-Value="Password" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="HandleLogin" Class="mt-4">Login</MudButton>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [CascadingParameter] 
+    private Task<AuthenticationState>? AuthenticationState { get; set; }
+
+    private UserModel model = new UserModel();
+
+    private string? Username
+    {
+        get => model?.Username;
+        set => model.Username = value;
+    } 
+
+    private string? Password
+    {
+        get => model?.Password;
+        set => model.Password = value;
+    }
+
+    private async Task HandleLogin()
+    {
+        // Authentication logic here
+        if ( await AuthenticateUser( model?.Username, model?.Password ) )
+        {
+            Snackbar.Add("Login successful!", Severity.Success);
+
+            var service = AuthenticationStateProvider as MockAuthenticationStateProvier;
+            service?.SignIn( model?.Username );
+
+            NavigationManager.NavigateTo(@"/chatroom");
+        }
+        else
+        {
+            Snackbar.Add( "Invalid credentials.", Severity.Error );
+        }
+    }
+
+    public class UserModel
+    {
+        public string? Username { get; set; }
+        public string? Password { get; set; }
+    }
+
+    private Task<bool> AuthenticateUser( string? email, string? password )
+    {
+        return Task.FromResult( password == "123" );
+    }
+}
