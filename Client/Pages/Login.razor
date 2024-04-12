@@ -19,29 +19,18 @@
     [CascadingParameter] 
     private Task<AuthenticationState>? AuthenticationState { get; set; }
 
-    private UserModel model = new UserModel();
-
-    private string? Username
-    {
-        get => model?.Username;
-        set => model.Username = value;
-    } 
-
-    private string? Password
-    {
-        get => model?.Password;
-        set => model.Password = value;
-    }
+    private string? Username { get; set; }
+    private string? Password { get; set; }
 
     private async Task HandleLogin()
     {
         // Authentication logic here
-        if ( await AuthenticateUser( model?.Username, model?.Password ) )
+        if ( await AuthenticateUser( Username, Password ) )
         {
             Snackbar.Add("Login successful!", Severity.Success);
 
             var service = AuthenticationStateProvider as MockAuthenticationStateProvier;
-            service?.SignIn( model?.Username );
+            service?.SignIn( Username );
 
             NavigationManager.NavigateTo(@"/chatroom");
         }
@@ -49,12 +38,6 @@
         {
             Snackbar.Add( "Invalid credentials.", Severity.Error );
         }
-    }
-
-    public class UserModel
-    {
-        public string? Username { get; set; }
-        public string? Password { get; set; }
     }
 
     private Task<bool> AuthenticateUser( string? email, string? password )
